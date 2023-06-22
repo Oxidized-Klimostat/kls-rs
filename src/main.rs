@@ -3,7 +3,7 @@ use log::*;
 use esp_idf_hal::i2c::*;
 use esp_idf_hal::peripherals::Peripherals;
 use esp_idf_hal::prelude::*;
-use scd30::scd30;
+use scd30::{Scd30};
 use std::{io::{self, BufRead}, mem};
 use tokio::{task, sync::broadcast, time::{sleep, Duration}};
 
@@ -28,7 +28,7 @@ async fn main() {
     let config = I2cConfig::new().baudrate(400.kHz().into());
     let i2c = I2cDriver::new(i2c, sda, scl, &config).unwrap();
 
-    let mut scd30 = scd30::Scd30::new(i2c);
+    let mut scd30 = Scd30::new(i2c);
 
     let (request_tx, mut request_rx) = broadcast::channel::<()>(5);
     let (reply_tx, reply_rx) = broadcast::channel(5);
