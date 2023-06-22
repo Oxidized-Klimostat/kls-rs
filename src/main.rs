@@ -36,6 +36,6 @@ fn main() {
 
     loop {
         println!("{:?}", scd30.read().unwrap().unwrap());
-        thread::sleep(time::Duration::from_secs(60*5));
+        thread::sleep(time::Duration::from_secs(20));
     }
 }
