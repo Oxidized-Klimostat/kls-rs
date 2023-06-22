@@ -4,8 +4,8 @@ use esp_idf_hal::i2c::*;
 use esp_idf_hal::peripherals::Peripherals;
 use esp_idf_hal::prelude::*;
 use scd30::scd30;
-use std::{thread, time, io::{self, BufRead}, mem};
-use tokio::{task, sync::broadcast};
+use std::{io::{self, BufRead}, mem};
+use tokio::{task, sync::broadcast, time::{sleep, Duration}};
 
 mod blocking_reader;
 
@@ -18,7 +18,6 @@ async fn main() {
     // Bind the log crate to the ESP Logging facilities
     esp_idf_svc::log::EspLogger::initialize_default();
 
-    info!("Hello, world!");
 
     let peripherals = Peripherals::take().unwrap();
     let i2c = peripherals.i2c0;
@@ -58,18 +57,18 @@ async fn main() {
                 Ok(reading) => {
                     match reading {
                         Some(measurement) => {
-                            println!("Automatic measurement: {:?}", measurement);
-                            thread::sleep(time::Duration::from_secs(60*10));
+                            info!("Automatic measurement: {:?}", measurement);
+                            sleep(Duration::from_secs(60*10)).await;
                         },
                         None => {
-                            println!("Automatic measurement: No data is available from the sensor, waiting 10 seconds");
-                            thread::sleep(time::Duration::from_secs(10));
+                            info!("Automatic measurement: No data is available from the sensor, waiting 5 seconds");
+                            sleep(Duration::from_secs(5)).await;
                         }
                     }
                 },
                 Err(_) => {
-                    println!("Automatic measurement: Sensor not ready, waiting 5 seconds");
-                    thread::sleep(time::Duration::from_secs(5));
+                    info!("Automatic measurement: Sensor not ready, waiting 5 seconds");
+                    sleep(Duration::from_secs(5)).await;
                 },
             }
         }
