@@ -1,4 +1,4 @@
-use std::{thread, io};
+use std::{io, thread, time::Duration};
 
 // Source: https://github.com/ivmarkov/rust-esp32-std-demo/issues/59#issuecomment-1030744674
 pub struct BlockingReader<R: io::Read> {
@@ -9,7 +9,7 @@ pub struct BlockingReader<R: io::Read> {
 impl<R: io::Read> From<R> for BlockingReader<R> {
     fn from(reader: R) -> Self {
         Self {
-            poll: core::time::Duration::from_millis(250), // Or whatever. Just don't set this so low that you get bit by the watchdog timer
+            poll: Duration::from_millis(250), // Or whatever. Just don't set this so low that you get bit by the watchdog timer
             reader,
         }
     }
@@ -26,7 +26,7 @@ impl<R: io::Read> io::Read for BlockingReader<R> {
                 Err(error) => match error.kind() {
                     io::ErrorKind::WouldBlock => thread::sleep(self.poll),
                     _ => return Err(error),
-                }
+                },
             }
         }
     }

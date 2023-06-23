@@ -74,7 +74,6 @@ async fn main() {
         }
     });
 
-    // Source: https://github.com/ivmarkov/rust-esp32-std-demo/issues/59#issuecomment-1030744674
     let stdin = io::stdin();
     let stdin = stdin.lock();
     let stdin: blocking_reader::BlockingReader<_> = stdin.into();
