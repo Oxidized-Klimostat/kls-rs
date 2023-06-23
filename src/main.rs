@@ -1,14 +1,19 @@
-use esp_idf_sys as _; // If using the `binstart` feature of `esp-idf-sys`, always keep this module imported
-use log::*;
 use esp_idf_hal::i2c::*;
 use esp_idf_hal::peripherals::Peripherals;
 use esp_idf_hal::prelude::*;
-use scd30::{Scd30};
-use std::{io::{self, BufRead}, mem};
-use tokio::{task, sync::broadcast, time::{sleep, Duration}};
+use log::*;
+use scd30::Scd30;
+use std::{
+    io::{self, BufRead, BufReader},
+    mem,
+};
+use tokio::{
+    sync::broadcast,
+    task,
+    time::{sleep, Duration},
+};
 
 mod blocking_reader;
-
 
 #[tokio::main]
 async fn main() {
@@ -18,12 +23,10 @@ async fn main() {
     // Bind the log crate to the ESP Logging facilities
     esp_idf_svc::log::EspLogger::initialize_default();
 
-
     let peripherals = Peripherals::take().unwrap();
     let i2c = peripherals.i2c0;
     let sda = peripherals.pins.gpio7;
     let scl = peripherals.pins.gpio6;
-
 
     let config = I2cConfig::new().baudrate(400.kHz().into());
     let i2c = I2cDriver::new(i2c, sda, scl, &config).unwrap();
@@ -40,7 +43,7 @@ async fn main() {
         loop {
             request_rx.recv().await.unwrap();
             reply_tx.send(scd30.read()).unwrap();
-        }    
+        }
     });
 
     let tmp_request_tx = request_tx.clone();
@@ -54,30 +57,26 @@ async fn main() {
             request_tx.send(()).unwrap();
 
             match reply_rx.recv().await.unwrap() {
-                Ok(reading) => {
-                    match reading {
-                        Some(measurement) => {
-                            info!("Automatic measurement: {:?}", measurement);
-                            sleep(Duration::from_secs(60*10)).await;
-                        },
-                        None => {
-                            info!("Automatic measurement: No data is available from the sensor, waiting 5 seconds");
-                            sleep(Duration::from_secs(5)).await;
-                        }
+                Ok(reading) => match reading {
+                    Some(measurement) => {
+                        info!("Automatic measurement: {:?}", measurement);
+                        sleep(Duration::from_secs(60 * 10)).await;
+                    }
+                    None => {
+                        info!("Automatic measurement: No data is available from the sensor, waiting 5 seconds");
+                        sleep(Duration::from_secs(5)).await;
                     }
                 },
                 Err(_) => {
                     info!("Automatic measurement: Sensor not ready, waiting 5 seconds");
                     sleep(Duration::from_secs(5)).await;
-                },
+                }
             }
         }
     });
 
-    let stdin = io::stdin();
-    let stdin = stdin.lock();
-    let stdin: blocking_reader::BlockingReader<_> = stdin.into();
-    let mut stdin = io::BufReader::new(stdin);
+    let stdin: blocking_reader::BlockingReader<_> = io::stdin().into();
+    let mut stdin = BufReader::new(stdin);
     let mut line = String::new();
 
     loop {
