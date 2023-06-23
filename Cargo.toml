@@ -29,7 +29,7 @@ embassy = ["esp-idf-hal?/embassy-sync", "esp-idf-hal?/critical-section", "esp-id
 
 [dependencies]
 log = { version = "0.4.17", default-features = false }
-scd30 = { git = "https://github.com/LetUsFlow/scd30-rs.git", rev = "5915fed" }
+scd30 = { git = "https://github.com/LetUsFlow/scd30-rs.git", rev = "76d47d8" }
 tokio = { version = "1.28", features = ["rt-multi-thread", "macros", "sync", "time"] }
 esp-idf-sys = { version = "0.33", default-features = false }
 esp-idf-hal = { version = "0.41", optional = true, default-features = false }
