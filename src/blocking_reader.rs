@@ -1,4 +1,8 @@
-use std::{io::{self, Read}, thread, time::Duration};
+use std::{
+    io::{self, Read},
+    thread,
+    time::Duration,
+};
 
 // Source: https://github.com/ivmarkov/rust-esp32-std-demo/issues/59#issuecomment-1030744674
 pub struct BlockingReader<R: Read> {

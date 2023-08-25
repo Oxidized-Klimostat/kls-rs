@@ -1,9 +1,9 @@
+use crossbeam_channel::unbounded;
 use esp_idf_hal::i2c::*;
 use esp_idf_hal::peripherals::Peripherals;
 use esp_idf_hal::prelude::*;
 use log::*;
 use scd30::Scd30;
-use crossbeam_channel::unbounded;
 use std::{
     io::{self, BufRead, BufReader},
     thread::{self, sleep},
@@ -33,34 +33,30 @@ fn main() {
     let (reply_tx, reply_rx) = unbounded();
 
     let local_reply_tx = reply_tx.clone();
-    let data_thread = thread::spawn(move || {
-        loop {
-            request_rx.recv().unwrap();
-            local_reply_tx.send(scd30.read()).unwrap();
-        }
+    thread::spawn(move || loop {
+        request_rx.recv().unwrap();
+        local_reply_tx.send(scd30.read()).unwrap();
     });
 
     let local_reply_rx = reply_rx.clone();
     let local_request_tx = request_tx.clone();
-    let info_thread = thread::spawn(move || {
-        loop {
-            local_request_tx.send(()).unwrap();
+    thread::spawn(move || loop {
+        local_request_tx.send(()).unwrap();
 
-            match local_reply_rx.recv().unwrap() {
-                Ok(reading) => match reading {
-                    Some(measurement) => {
-                        info!("Automatic measurement: {:?}", measurement);
-                        sleep(Duration::from_secs(60 * 10)).await;
-                    }
-                    None => {
-                        info!("Automatic measurement: No data is available from the sensor, waiting 5 seconds");
-                        sleep(Duration::from_secs(5));
-                    }
-                },
-                Err(_) => {
-                    info!("Automatic measurement: Sensor not ready, waiting 5 seconds");
+        match local_reply_rx.recv().unwrap() {
+            Ok(reading) => match reading {
+                Some(measurement) => {
+                    info!("Automatic measurement: {:?}", measurement);
+                    sleep(Duration::from_secs(60 * 10));
+                }
+                None => {
+                    info!("Automatic measurement: No data is available from the sensor, waiting 5 seconds");
                     sleep(Duration::from_secs(5));
                 }
+            },
+            Err(_) => {
+                info!("Automatic measurement: Sensor not ready, waiting 5 seconds");
+                sleep(Duration::from_secs(5));
             }
         }
     });
@@ -73,7 +69,7 @@ fn main() {
         line.clear();
         let _ = stdin.read_line(&mut line).unwrap();
 
-        request_tx.send(());
+        request_tx.send(()).unwrap();
         println!("{:#?}", reply_rx.recv().unwrap());
     }
 }
