@@ -1,4 +1,4 @@
-use crossbeam_channel::unbounded;
+use crossbeam_channel::bounded;
 use esp_idf_hal::i2c::*;
 use esp_idf_hal::peripherals::Peripherals;
 use esp_idf_hal::prelude::*;
@@ -29,8 +29,8 @@ fn main() {
 
     let mut scd30 = Scd30::new(i2c);
 
-    let (request_tx, request_rx) = unbounded();
-    let (reply_tx, reply_rx) = unbounded();
+    let (request_tx, request_rx) = bounded(5);
+    let (reply_tx, reply_rx) = bounded(5);
 
     let local_reply_tx = reply_tx.clone();
     thread::spawn(move || loop {
