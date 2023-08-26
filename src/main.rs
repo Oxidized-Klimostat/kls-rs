@@ -54,14 +54,15 @@ fn main() {
         }
     };
 
-
     let (request_tx, request_rx) = bounded(5);
     let (reply_tx, reply_rx) = bounded(5);
 
     let local_reply_tx = reply_tx.clone();
     thread::spawn(move || loop {
         request_rx.recv().unwrap();
-        local_reply_tx.send((scd30.read(), block!(ccs811.data()))).unwrap();
+        local_reply_tx
+            .send((scd30.read(), block!(ccs811.data())))
+            .unwrap();
     });
 
     let local_reply_rx = reply_rx.clone();
@@ -69,7 +70,6 @@ fn main() {
     thread::spawn(move || loop {
         local_request_tx.send(()).unwrap();
 
-        
         let (scd30_data, ccs811_data) = local_reply_rx.recv().unwrap();
         handle_scd30_measurement(scd30_data);
         handle_ccs811_measurement(ccs811_data);
@@ -106,7 +106,9 @@ fn handle_scd30_measurement(reading: Result<Option<scd30::Measurement>, I2cError
     }
 }
 
-fn handle_ccs811_measurement(reading: Result<embedded_ccs811::AlgorithmResult, embedded_ccs811::ErrorAwake<I2cError>>) {
+fn handle_ccs811_measurement(
+    reading: Result<embedded_ccs811::AlgorithmResult, embedded_ccs811::ErrorAwake<I2cError>>,
+) {
     match reading {
         Ok(data) => info!("ccs811: {:?}", data),
         Err(err) => info!("ccs811: Sensor error: {:?}", err),
