@@ -1,17 +1,14 @@
+use crossbeam_channel::bounded;
+use log::*;
 use std::{
     io::{self, BufRead, BufReader},
     thread::{self, sleep},
     time::Duration,
 };
 
-use crossbeam_channel::bounded;
-
-use esp_idf_hal::i2c::*;
-use esp_idf_hal::peripherals::Peripherals;
-use esp_idf_hal::prelude::*;
-use log::*;
-
 use embedded_ccs811::{nb::block, prelude::*, Ccs811Awake};
+use esp_idf_hal::{i2c::*, prelude::*, peripherals::Peripherals};
+use esp_idf_sys as _;
 use scd30::Scd30;
 
 mod blocking_reader;
