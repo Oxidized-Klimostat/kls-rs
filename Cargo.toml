@@ -1,7 +1,7 @@
 [package]
 name = "kls-rs"
 version = "0.1.0"
-authors = ["florentin"]
+authors = ["Florentin Schäfer <florentin.schaefer@gmail.com>"]
 edition = "2021"
 resolver = "2"
 rust-version = "1.71"
