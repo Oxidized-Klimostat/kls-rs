@@ -8,7 +8,6 @@ use std::{
 
 use embedded_ccs811::{nb::block, prelude::*, Ccs811Awake};
 use esp_idf_hal::{i2c::*, prelude::*, peripherals::Peripherals};
-use esp_idf_sys as _;
 use scd30::Scd30;
 
 mod blocking_reader;
@@ -16,7 +15,7 @@ mod blocking_reader;
 fn main() {
     // It is necessary to call this function once. Otherwise some patches to the runtime
     // implemented by esp-idf-sys might not link properly. See https://github.com/esp-rs/esp-idf-template/issues/71
-    esp_idf_sys::link_patches();
+    esp_idf_svc::sys::link_patches();
     // Bind the log crate to the ESP Logging facilities
     esp_idf_svc::log::EspLogger::initialize_default();
 
