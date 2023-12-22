@@ -26,7 +26,7 @@ embassy = ["esp-idf-svc/embassy-sync", "esp-idf-svc/critical-section", "esp-idf-
 [dependencies]
 crossbeam-channel = "0.5"
 embedded-ccs811 = "0.2"
-scd30 = { git = "https://github.com/LetUsFlow/scd30-rs.git", rev = "76d47d8" }
+scd30 = { git = "https://github.com/LetUsFlow/scd30-rs.git", tag = "0.4.1"}
 shared-bus = { version = "0.3", features = ["std"]}
 log = { version = "0.4", default-features = false }
 esp-idf-svc = { version = "0.47", default-features = false }
